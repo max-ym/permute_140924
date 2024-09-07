@@ -1,0 +1,21 @@
+#![permute("0.1")]
+
+impl EmploymentRecord {
+    fn is_terminated(self) -> bool {
+        self.termination_date.is_some()
+    }
+
+    fn is_active(self) -> bool {
+        !self.is_terminated()
+    }
+
+    fn job_title(self) -> Option<String> {
+        self.meta?.get("job")?.get("title")
+    }
+}
+
+impl Date {
+    fn date_fmt(self) -> String {
+        self.format("%Y-%m-%d")
+    }
+}

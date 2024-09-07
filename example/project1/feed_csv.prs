@@ -1,0 +1,59 @@
+#![permute("0.1")]
+
+pub struct FeederCsv {
+    // To hold any internal state if needed.
+}
+
+pub struct RowSequence {
+    next: u32,
+}
+
+impl RowSequence {
+    pub fn start(start: u32) -> RowSequence {
+        RowSequence { next: start }
+    }
+
+    pub fn next(&mut self) -> u32 {
+        let next = self.next;
+        self.next += 1;
+        next
+    }
+}
+
+#[derive(SinkRecord)]
+#[headers_case_rename("Capitals Case")]
+pub struct SinkRecord {
+    pub row_number: u32,
+    pub employee_id: String,
+    pub hire_date: Date,
+    pub termination_date: Option<Date>,
+    pub salary: Monetary,
+    pub job_title: Option<String>,
+}
+
+impl permute::Feeder for FeederCsv {
+    type Target = SinkCsv;
+    type Source = SrcEmploymentRecord;
+    
+    fn init(&self) -> SinkCsv {
+        // Initialize the sink.
+        SinkCsv {
+            row_sequence: RowSequence::start(1),
+            date_fmt: Date::date_fmt,
+            none_fmt: || "", // Default to empty string.
+            headers: SinkRecord::headers(),
+        }
+    }
+
+    fn write(&self, record: SrcEmploymentRecord, sink: &mut SinkCsv) {
+        // Write the record to the sink.
+        sink.write(SinkRecord {
+            row_number: sink.row_sequence.next(),
+            employee_id: record.employee_id,
+            hire_date: record.hire_date,
+            termination_date: record.termination_date,
+            salary: record.salary,
+            job_title: record.job_title,
+        });
+    }
+}

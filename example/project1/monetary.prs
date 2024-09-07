@@ -1,0 +1,26 @@
+// This indicates the version of Permute framework that is used.
+#![permute("0.1")]
+
+/// This is a monetary type that uses fixed-point arithmetic with 2 decimal places.
+pub struct Monetary(FixedPoint<Precision = 2>);
+
+// Macro to check the invariant of the struct to avoid invalid states.
+check! {
+    Monetary {
+        self.0 >= 0;
+    }
+}
+
+/// This is a monetary type that uses separate integers to store
+/// the dollar and cent amounts.
+pub struct DollarCent {
+    dollar: u32,
+    cent: u8,
+}
+
+check! {
+    DollarCent {
+        self.dollar >= 0;
+        self.cent < 100;
+    }
+}
